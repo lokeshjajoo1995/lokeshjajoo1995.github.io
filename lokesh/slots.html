@@ -1,0 +1,48 @@
+<html>
+<audio id="alarm" src="alarms.mp3" muted></audio>
+<button onclick="clicked()">start</button>
+  <script type="text/javascript">
+
+
+
+
+     function parseData(data){
+       var jsonData = JSON.parse(data);
+       for(var cen in jsonData.centers)
+       {
+      //   debugger;
+         var centerName = jsonData.centers[cen].name;
+         for(var sess in jsonData.centers[cen].sessions){
+           if(jsonData.centers[cen].sessions[sess].available_capacity != 0 ){
+
+             document.getElementById('alarm').play();
+             document.getElementById('alarm').muted = false;
+             console.log('centerName --'+centerName);
+             //document.write(centerName);
+            // alert('Available at '+ centerName);
+           }
+         }
+       }
+     }
+
+     function clicked(){
+       setInterval(function(){
+         const Http = new XMLHttpRequest();
+         const url='https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=725&date=11-05-2021';
+         Http.open("GET", url);
+         Http.send();
+
+         Http.onreadystatechange = (e) => {
+           console.log(Http.responseText);
+           parseData(Http.responseText);
+
+         }
+        }, 3000);
+
+
+     }
+
+
+
+  </script>
+</html>
