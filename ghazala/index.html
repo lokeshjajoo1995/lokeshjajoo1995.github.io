@@ -1,0 +1,187 @@
+<html>
+<head>
+<title>Cowin Vaccine Slots</title>
+<link rel="stylesheet" href="index.css">
+</head>
+
+<audio id="alarm" src="alarms.mp3" muted></audio>
+<pre id="info"><b>District</b> - North 24 pgs <b>Date</b> - 31st May to 6th June</pre>
+<button id="startbutton" onclick="clicked()">Start scan</button><br/>
+
+<p id="45">Slots for min age 45 : </p>
+<span><button id="clear45" onclick="clearResults(45)" style="display: none;">Clear</button></span>
+<pre id="results45"></pre>
+
+<p id="18">Slots for min age 18 : </p>
+<span><button id="clear18" onclick="clearResults(18)" style="display: none;">Clear</button></span>
+<pre id="results18"></pre>
+<pre id="myPre">
+  <span class="infoSpan1">Green buttons </span>-> for dose 1 &
+  <span class="infoSpan2">Red buttons </span>-> for dose 2 
+</pre><br>
+
+<pre id="note">
+* Auto-refresh every 10 seconds.
+** Alarm will be triggered for available slots for - min age 18 & min age 45 - Dose 1
+</pre>
+
+  <script type="text/javascript">
+
+    var intervalId = '';
+
+    function clicked() {
+      var startButtonElement = document.getElementById("startbutton");
+       if(startButtonElement.innerHTML=="Start scan") {
+        console.log("Starting scan ...");
+        startButtonElement.innerHTML = "Stop scan";
+        startButtonElement.style.backgroundColor = "red";
+       }
+       else {
+        console.log("Stopping scan ...");
+        clearInterval(intervalId);
+        startButtonElement.innerHTML = "Start scan";
+        startButtonElement.style.backgroundColor = "rgb(37, 177, 37)";
+        return;
+       } 
+
+       intervalId = setInterval(function(){
+         const Http = new XMLHttpRequest();
+         const url='https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByDistrict?district_id=730&date=31-05-2021';
+		    //  const url='https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=743126&date=21-05-2021';
+         Http.open("GET", url);
+         Http.send();
+
+         Http.onreadystatechange = (e) => {
+           //console.log(Http.responseText);
+           parseData(Http.responseText);
+         }
+        }, 10000);
+     }
+
+     function parseData(data) {
+      //  cleaning
+      var minAge45Element = document.getElementById("45");
+      var minAge18Element = document.getElementById("18");
+      minAge45Element.innerHTML='Slots for min age 45 : ';
+      minAge18Element.innerHTML='Slots for min age 18 : ';
+
+      var jsonData;
+      try {
+        jsonData = JSON.parse(data);
+      } catch (err) {
+        minAge45Element.innerHTML = err.message;
+        minAge18Element.innerHTML = err.message;
+        return;
+      }
+       var currentdate = new Date(); 
+            var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/" 
+                    + currentdate.getFullYear() + " @ "  
+                    + currentdate.getHours() + ":"  
+                    + currentdate.getMinutes() + ":" 
+                    + currentdate.getSeconds();
+            console.log(datetime);
+       for(var cen in jsonData.centers)
+       {
+         var center = jsonData.centers[cen];
+         for(var sess in center.sessions) {
+           if(center.sessions[sess].available_capacity != 0)
+           {
+            var session = center.sessions[sess];
+            // console.log(session);
+
+            if(session.min_age_limit == 45) {
+              addButtons(center, session, 45);
+            }
+            else {
+              addButtons(center, session, 18);
+            }
+           }
+         }
+       }
+     }
+
+     function addButtons(center, session, minAge) {
+      var element = document.createElement("input");
+      element.type="button";
+      element.value = center.name;
+      element.name = center.name;
+      
+      if(session.available_capacity_dose1 != 0) {
+        console.log('center name ---> ' + center.name + ' for AGE ' + session.min_age_limit + ' DOSE 1');
+        playAudio();
+        element.id = "dose1button";
+      }
+      else {
+        console.log('center name ---> ' + center.name + ' for AGE ' + session.min_age_limit + ' DOSE 2');
+        element.id = "dose2button";
+      }
+
+      element.onclick = function() { 
+        slotDetails(center, session, minAge);
+      }
+      
+      if(minAge==45) {
+        var minAge45Element = document.getElementById("45");
+        minAge45Element.appendChild(element);
+      }
+      if(minAge==18) {
+        var minAge18Element = document.getElementById("18");
+        minAge18Element.appendChild(element);
+      }
+    }
+
+    function slotDetails(center, session, minAge) {
+      console.log("Details requested for center: " + center.name);
+      var para2 ;
+      if(minAge==45){
+        para2 = document.getElementById("results45");
+        document.getElementById("clear45").style.display="block";
+      }
+      else{
+        para2 = document.getElementById("results18");
+        document.getElementById("clear18").style.display="block";
+      }
+      
+      para2.innerHTML = "Loading...";
+      var resp = {
+        "Center id" : center.center_id,
+        "Center name" : center.name,
+        "Address" : center.address,
+        "State" : center.state_name,
+        "District" : center.district_name,
+        "Block name" : center.block_name,
+        "Pincode" : center.pincode,
+        "Lat" : center.lat,
+        "Long" : center.long,
+        "From" : center.from,
+        "To" : center.to,
+        "Fee type" : center.fee_type,
+        "Session" : session
+      }
+      setTimeout(function(){ para2.innerHTML = JSON.stringify(resp, undefined, 2); }, 300);
+    }
+
+    function playAudio() {
+      document.getElementById('alarm').play();
+      document.getElementById('alarm').muted = false;
+    }
+
+    function clearResults(minAge) {
+      var para2Element, clearParaElement;
+      if(minAge==45) {
+        para2Element = document.getElementById("results45");
+        clearParaElement = document.getElementById("clear45");
+        console.log("Clearing 45");
+      }
+      else {
+        para2Element = document.getElementById("results18");
+        clearParaElement = document.getElementById("clear18");
+        console.log("Clearing 18");
+      }
+      para2Element.innerHTML="";
+      clearParaElement.style.display="none";
+    }
+
+  </script>
+</html>

@@ -1,0 +1,76 @@
+#info {
+    /* background-color: #4552cc4a; */
+    border-left: 6px solid #5a67db6e;
+    color: black;
+    /* color: #0718b6e7; */
+    font-size: 12px;
+    /* font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
+    padding: 5px;
+}
+
+#note { 
+    /* background-color: #4552cc4a; */
+    border-left: 6px solid #5a67db6e;
+    color: black;
+    font-size: 12px;
+    padding: 5px;
+}
+
+#startbutton {
+    color: white;
+    background-color: rgb(37, 177, 37);
+    border: none;
+    padding: 7px 10px;
+    text-align: center;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+#myPre { 
+    font-size: 12px;
+    font-weight: bold;
+    font-style: italic;
+}
+
+.infoSpan1 { 
+    color: green;
+}
+
+.infoSpan2 { 
+    color: red;
+}
+
+#dose1button {
+    color: white;
+    background-color: rgb(37, 177, 37);
+    border: 1px solid green;
+    padding: 5px 5px;
+    text-align: center;
+    display: inline-block;
+}
+
+#dose2button {
+    color: white;
+    background-color: rgb(248, 59, 59);
+    border: 1px solid rgb(187, 3, 3);
+    padding: 6px 6px;
+    text-align: center;
+    display: inline-block;
+}
+
+#dose1button:hover {
+    color: rgb(37, 177, 37);
+    background-color: white;
+}
+
+#dose2button:hover {
+    color: rgb(248, 59, 59);
+    background-color: white;
+}
+
+#clear45, #clear18{
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    display: inline-block;
+}
